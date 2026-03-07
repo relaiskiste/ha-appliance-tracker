@@ -1,0 +1,76 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add Appliance",
+        "description": "Set up a new appliance to track by its power consumption.",
+        "data": {
+          "appliance_name": "Appliance name",
+          "appliance_type": "Appliance type",
+          "power_sensor": "Power sensor"
+        },
+        "data_description": {
+          "appliance_name": "A friendly name for this appliance (e.g., 'Kitchen Dishwasher').",
+          "appliance_type": "The type of appliance. This sets smart default thresholds.",
+          "power_sensor": "The power (W) sensor entity that monitors this appliance."
+        }
+      },
+      "thresholds": {
+        "title": "Power Thresholds",
+        "description": "Configure power thresholds for **{appliance_name}**. The defaults are optimized for your appliance type — adjust only if needed.",
+        "data": {
+          "start_threshold": "Start threshold",
+          "stop_threshold": "Stop threshold",
+          "start_delay": "Start delay",
+          "stop_delay": "Stop delay",
+          "finishing_delay": "Finishing confirmation delay",
+          "complete_timeout": "Auto-reset timeout"
+        },
+        "data_description": {
+          "start_threshold": "Power (W) above which the appliance is considered to have started.",
+          "stop_threshold": "Power (W) below which the appliance is considered to have stopped.",
+          "start_delay": "How long (seconds) power must stay above the start threshold before transitioning to Running.",
+          "stop_delay": "How long (seconds) power must stay below the stop threshold before transitioning to Finishing.",
+          "finishing_delay": "How long (seconds) power must stay low to confirm the cycle is Complete (handles mid-cycle pauses).",
+          "complete_timeout": "How long (seconds) to stay in Complete state before auto-resetting to Idle."
+        }
+      }
+    },
+    "error": {
+      "sensor_not_found": "The selected power sensor was not found. Please check the entity ID."
+    },
+    "abort": {
+      "already_configured": "This power sensor is already configured for tracking."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "appliance_state": {
+        "name": "State",
+        "state": {
+          "idle": "Idle",
+          "running": "Running",
+          "finishing": "Finishing",
+          "complete": "Complete"
+        }
+      },
+      "current_power": {
+        "name": "Current power"
+      },
+      "cycle_count": {
+        "name": "Cycle count"
+      },
+      "last_cycle_duration": {
+        "name": "Last cycle duration"
+      },
+      "last_cycle_energy": {
+        "name": "Last cycle energy"
+      }
+    },
+    "binary_sensor": {
+      "running": {
+        "name": "Running"
+      }
+    }
+  }
+}
