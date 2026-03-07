@@ -1,0 +1,106 @@
+blueprint:
+  name: "Appliance Tracker: TTS announcement when cycle is done"
+  description: >
+    Play a text-to-speech announcement on a media player (smart speaker,
+    Google Home, Alexa, etc.) when an appliance finishes its cycle.
+  domain: automation
+  source_url: https://github.com/wroadd/ha-appliance-tracker/blob/main/blueprints/tts_announce_complete.yaml
+  author: wroadd
+  input:
+    appliance_state_sensor:
+      name: Appliance state sensor
+      description: The state sensor created by Appliance Tracker
+      selector:
+        entity:
+          integration: appliance_tracker
+          domain: sensor
+    media_player:
+      name: Media player
+      description: The speaker or media player for the announcement
+      selector:
+        entity:
+          domain: media_player
+    tts_service:
+      name: TTS service
+      description: Text-to-speech service to use
+      selector:
+        text:
+      default: tts.speak
+    tts_engine:
+      name: TTS engine entity (optional)
+      description: The TTS engine entity (e.g., tts.google_en_com). Leave default for most setups.
+      selector:
+        entity:
+          domain: tts
+      default: tts.google_en_com
+    custom_message:
+      name: Custom message (optional)
+      description: >
+        Leave empty for default. Use {{ appliance }} as placeholder.
+      selector:
+        text:
+          multiline: true
+      default: ""
+    volume:
+      name: Announcement volume
+      description: Volume level for the announcement (0.0 - 1.0)
+      selector:
+        number:
+          min: 0.1
+          max: 1.0
+          step: 0.1
+          mode: slider
+      default: 0.5
+    quiet_hours_start:
+      name: Quiet hours start
+      selector:
+        time:
+      default: "22:00:00"
+    quiet_hours_end:
+      name: Quiet hours end
+      selector:
+        time:
+      default: "07:00:00"
+    enable_quiet_hours:
+      name: Enable quiet hours
+      selector:
+        boolean:
+      default: true
+
+trigger:
+  - platform: state
+    entity_id: !input appliance_state_sensor
+    to: "complete"
+
+condition:
+  - condition: or
+    conditions:
+      - condition: template
+        value_template: "{{ not enable_quiet_hours }}"
+      - condition: time
+        after: !input quiet_hours_end
+        before: !input quiet_hours_start
+
+variables:
+  enable_quiet_hours: !input enable_quiet_hours
+  appliance: "{{ state_attr(trigger.entity_id, 'friendly_name') | replace(' State', '') }}"
+  custom_msg: !input custom_message
+  message: >
+    {% if custom_msg %}
+      {{ custom_msg }}
+    {% else %}
+      Attention! The {{ appliance }} has finished its cycle. Please unload it.
+    {% endif %}
+
+action:
+  - action: media_player.volume_set
+    target:
+      entity_id: !input media_player
+    data:
+      volume_level: !input volume
+  - action: !input tts_service
+    target:
+      entity_id: !input tts_engine
+    data:
+      media_player_entity_id: !input media_player
+      message: "{{ message }}"

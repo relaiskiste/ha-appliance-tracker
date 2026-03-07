@@ -4,6 +4,8 @@
 [![GitHub Release](https://img.shields.io/github/v/release/wroadd/ha-appliance-tracker)](https://github.com/wroadd/ha-appliance-tracker/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=wroadd&repository=ha-appliance-tracker&category=integration)
+
 **Know exactly when your laundry, dishes, or dryer are done.** No more guessing, no more forgotten loads.
 
 Appliance Tracker monitors power consumption from any smart plug (Shelly, Zigbee, Z-Wave, etc.) and detects when your washing machine, dryer, or dishwasher starts, runs, and completes a cycle — then notifies you.
@@ -22,7 +24,8 @@ Appliance Tracker monitors power consumption from any smart plug (Shelly, Zigbee
 - **Event firing** — Fires `appliance_tracker_cycle_complete` event for advanced automations
 - **Multi-appliance** — Track as many appliances as you have smart plugs
 - **Config flow UI** — Full GUI setup, no YAML needed
-- **HACS compatible** — Easy install through HACS
+- **Ready-made blueprints** — Notification, light flash, and TTS announcement blueprints included
+- **HACS compatible** — One-click install through HACS
 
 ## 📊 Created entities
 
@@ -75,6 +78,12 @@ The **Finishing** state handles mid-cycle pauses (e.g., a washing machine pausin
 
 ### HACS (recommended)
 
+**One-click install:**
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=wroadd&repository=ha-appliance-tracker&category=integration)
+
+**Or manually:**
+
 1. Open HACS in your Home Assistant instance
 2. Click **Integrations**
 3. Click the **⋮** menu → **Custom repositories**
@@ -104,7 +113,31 @@ The **Finishing** state handles mid-cycle pauses (e.g., a washing machine pausin
 
 5. Done! Your appliance will appear as a new device with all sensors.
 
-## 🔔 Automation examples
+## 📘 Blueprints (ready to use)
+
+Import these blueprints with one click — no YAML editing needed:
+
+### 📱 Notify when cycle is done
+
+Send a push notification to your phone with cycle details, quiet hours support.
+
+[![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fwroadd%2Fha-appliance-tracker%2Fblob%2Fmain%2Fblueprints%2Fnotify_cycle_complete.yaml)
+
+### 💡 Flash a light when cycle is done
+
+Visual alert — flash any light with custom color and count.
+
+[![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fwroadd%2Fha-appliance-tracker%2Fblob%2Fmain%2Fblueprints%2Fflash_light_on_complete.yaml)
+
+### 🔊 TTS announcement when cycle is done
+
+Play a spoken announcement on any smart speaker (Google Home, Alexa, etc.)
+
+[![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fwroadd%2Fha-appliance-tracker%2Fblob%2Fmain%2Fblueprints%2Ftts_announce_complete.yaml)
+
+---
+
+## 🔔 Automation examples (manual YAML)
 
 ### Notify when washing is done
 

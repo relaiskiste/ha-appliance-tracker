@@ -1,0 +1,79 @@
+blueprint:
+  name: "Appliance Tracker: Flash light when cycle is done"
+  description: >
+    Flash or turn on a light when an appliance finishes its cycle.
+    Great for visual alerts in the laundry room or kitchen.
+  domain: automation
+  source_url: https://github.com/wroadd/ha-appliance-tracker/blob/main/blueprints/flash_light_on_complete.yaml
+  author: wroadd
+  input:
+    appliance_state_sensor:
+      name: Appliance state sensor
+      description: The state sensor created by Appliance Tracker
+      selector:
+        entity:
+          integration: appliance_tracker
+          domain: sensor
+    target_light:
+      name: Light to flash
+      description: The light entity to use as a visual alert
+      selector:
+        entity:
+          domain: light
+    flash_color:
+      name: Flash color
+      description: Color for the flash (RGB)
+      selector:
+        color_rgb:
+      default: [0, 255, 0]
+    flash_count:
+      name: Number of flashes
+      description: How many times to flash the light
+      selector:
+        number:
+          min: 1
+          max: 20
+          mode: slider
+      default: 5
+    restore_state:
+      name: Restore light state after flashing
+      description: Turn the light back to its previous state after flashing
+      selector:
+        boolean:
+      default: true
+
+trigger:
+  - platform: state
+    entity_id: !input appliance_state_sensor
+    to: "complete"
+
+variables:
+  flash_count_val: !input flash_count
+  light_entity: !input target_light
+  was_on: "{{ is_state(light_entity, 'on') }}"
+  restore: !input restore_state
+
+action:
+  - repeat:
+      count: "{{ flash_count_val }}"
+      sequence:
+        - action: light.turn_on
+          target:
+            entity_id: !input target_light
+          data:
+            rgb_color: !input flash_color
+            brightness: 255
+        - delay:
+            milliseconds: 500
+        - action: light.turn_off
+          target:
+            entity_id: !input target_light
+        - delay:
+            milliseconds: 500
+  - if:
+      - condition: template
+        value_template: "{{ restore and was_on }}"
+    then:
+      - action: light.turn_on
+        target:
+          entity_id: !input target_light

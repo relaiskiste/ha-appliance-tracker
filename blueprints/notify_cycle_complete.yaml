@@ -1,0 +1,91 @@
+blueprint:
+  name: "Appliance Tracker: Notify when cycle is done"
+  description: >
+    Send a notification to your phone when a washing machine, dryer, or
+    dishwasher finishes its cycle. Uses the Appliance Tracker integration's
+    cycle_complete event for reliable detection.
+  domain: automation
+  source_url: https://github.com/wroadd/ha-appliance-tracker/blob/main/blueprints/notify_cycle_complete.yaml
+  author: wroadd
+  input:
+    appliance_state_sensor:
+      name: Appliance state sensor
+      description: The state sensor created by Appliance Tracker (e.g., sensor.washing_machine_state)
+      selector:
+        entity:
+          integration: appliance_tracker
+          domain: sensor
+    notify_service:
+      name: Notification service
+      description: The notification service to use (e.g., notify.mobile_app_your_phone)
+      selector:
+        text:
+      default: notify.notify
+    notification_title:
+      name: Notification title
+      description: Title of the notification
+      selector:
+        text:
+      default: "🧺 Appliance done!"
+    custom_message:
+      name: Custom message (optional)
+      description: >
+        Leave empty to use the default message with cycle details.
+        Use {{ duration }} and {{ cycles }} as placeholders.
+      selector:
+        text:
+          multiline: true
+      default: ""
+    quiet_hours_start:
+      name: Quiet hours start (optional)
+      description: Don't send notifications after this time
+      selector:
+        time:
+      default: "23:00:00"
+    quiet_hours_end:
+      name: Quiet hours end (optional)
+      description: Don't send notifications before this time
+      selector:
+        time:
+      default: "06:00:00"
+    enable_quiet_hours:
+      name: Enable quiet hours
+      description: Skip notifications during quiet hours
+      selector:
+        boolean:
+      default: false
+
+trigger:
+  - platform: state
+    entity_id: !input appliance_state_sensor
+    to: "complete"
+
+condition:
+  - condition: or
+    conditions:
+      - condition: template
+        value_template: "{{ not enable_quiet_hours }}"
+      - condition: time
+        after: !input quiet_hours_end
+        before: !input quiet_hours_start
+
+variables:
+  enable_quiet_hours: !input enable_quiet_hours
+  appliance_name: "{{ state_attr(trigger.entity_id, 'friendly_name') | replace(' State', '') }}"
+  duration_sensor: "{{ trigger.entity_id | replace('_state', '_last_cycle_duration') }}"
+  cycle_sensor: "{{ trigger.entity_id | replace('_state', '_cycle_count') }}"
+  duration: "{{ states(duration_sensor) | default('unknown') }}"
+  cycles: "{{ states(cycle_sensor) | default('unknown') }}"
+  custom_msg: !input custom_message
+  message: >
+    {% if custom_msg %}
+      {{ custom_msg }}
+    {% else %}
+      {{ appliance_name }} finished! Cycle #{{ cycles }}, took {{ duration }} minutes.
+    {% endif %}
+
+action:
+  - action: !input notify_service
+    data:
+      title: !input notification_title
+      message: "{{ message }}"
